@@ -1,0 +1,52 @@
+ESTUDIO JURÍDICO MAGALLANES - MONTERO (M&M)
+Proyecto Final - Algoritmos y Estructura de Datos
+
+CÓMO ABRIRLO EN APACHE NETBEANS
+1. Descomprime el ZIP.
+2. NetBeans > File > Open Project... > selecciona la carpeta EstudioJuridicoMM.
+3. Clic derecho en el proyecto > Run (o F6). La clase principal es ui.MainApp.
+   (Requiere JDK 17 o superior.)
+
+DATOS PRECARGADOS
+La primera vez el sistema carga datos de prueba (paquete persistencia, clase DatosIniciales):
+ - 5 expedientes abiertos (EXP-2026-0001 a EXP-2026-0005) con su historial de movimientos.
+ - 10 clientes y contrapartes en el árbol por DNI/RUC.
+ - 1 ficha en evaluación (SOL-0008, Roberto Flores).
+ - 5 solicitudes en la cola (SOL-0009 a SOL-0013).
+Al salir se guarda todo en el archivo datos_estudio_mm.dat (en la carpeta del proyecto).
+Para volver a los datos de prueba: Menú principal > opción 6.
+
+CASOS PARA LA DEMOSTRACIÓN
+ - SOL-0010 Inmobiliaria Los Andes (RUC 20512345678): CONFLICTO, es contraparte del EXP-2026-0005.
+ - SOL-0011 Andrés Gutiérrez: al llenar la ficha pon como contraparte el RUC 20601234567
+   (Constructora Pacífico Sur) -> CONFLICTO, es cliente del estudio.
+ - Propuesta con fecha de emisión antigua y respuesta 6+ días después -> se ARCHIVA por plazo vencido.
+ - Registrar en EXP-2026-0001 un movimiento con fecha 01/04/2026 -> se ubica en su lugar
+   cronológico con una pila auxiliar; la cima sigue siendo el más reciente.
+ - EXP-2026-0002 tiene un movimiento ANULADO (se conserva en la pila de anulados).
+
+ESTRUCTURAS (paquete estructuras, implementación propia, sin java.util)
+ - Cola<T>  : solicitudes pendientes y fichas en evaluación (FIFO).
+ - Pila<T>  : historial del expediente (cima = último movimiento) y pila de anulados (LIFO).
+ - ArbolBinarioBusqueda<K,V> : expedientes por código y clientes/contrapartes por DNI/RUC.
+   Sigue la clase Arbol de la sesión de Árbol Binario (agregar, buscar, eliminar,
+   encontrarMinimo, mostrarElementos / recorrerEnOrden).
+
+NOMBRES DE MÉTODOS (iguales a los PDF de las Semanas 11 y 12)
+ - Pila: push, pop, peek, estaVacia, cantidadElementos, mostrarPila, limpiarPila.
+ - Cola: agregar, poll, peek, estaVacia, cantidadElementos, mostrarCola, limpiarCola.
+
+
+SI ALGO NO SE VE / AVISOS AL COMPILAR
+ - Ejecutar con F6 (Run Project), no con Shift+F6 sobre otro archivo.
+ - Los menús siempre aparecen delante de las demás ventanas y en la barra de tareas
+   como "Estudio Jurídico M&M". Para desactivarlo: ui/Dialogos.java, SIEMPRE_ADELANTE = false.
+ - El aviso "location of system modules is not set in conjunction with -source 17"
+   NO es un error: el proyecto está en Java 17 y el JDK instalado es más nuevo.
+   Para quitarlo: clic derecho al proyecto > Properties > Sources >
+   Source/Binary Format = versión de su JDK (21 o 25) > OK > Clean and Build.
+
+DOS VERSIONES (mismo código)
+ - ui/Tema.java, MOSTRAR_TEMAS = true  : la interfaz indica la estructura usada
+   (Cola, Pila, Árbol, cima, recorrido en orden...). Para la sustentación técnica.
+ - ui/Tema.java, MOSTRAR_TEMAS = false : interfaz limpia para la presentación.
