@@ -1,0 +1,14 @@
+# Compilación de NetBeans / Ant
+build/
+dist/
+out/
+nbproject/private/
+*.class
+
+# Datos guardados por el programa al ejecutarse
+*.dat
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+~$*.docx
