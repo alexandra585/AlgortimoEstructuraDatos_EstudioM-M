@@ -178,11 +178,11 @@ Cada capa usa solo a la de abajo: `ui` → `servicio` → `modelo` → `estructu
 
 **Parte A: paquetes `estructuras` y `modelo`**
 
-![Diagrama de clases - Parte A](docs/img/diagrama_clases_parteA.png)
+![Diagrama de clases - Parte A](diagrama_clases_parteA.png)
 
 **Parte B: paquetes `servicio`, `persistencia` y `ui`**
 
-![Diagrama de clases - Parte B](docs/img/diagrama_clases_parteB.png)
+![Diagrama de clases - Parte B](diagrama_clases_parteB.png)
 
 ---
 
@@ -192,27 +192,27 @@ Las capturas de los módulos corresponden a la versión limpia (`MOSTRAR_TEMAS =
 
 | Solicitudes (Cola) | Evaluación y apertura (Árbol) |
 |---|---|
-| ![Solicitudes](docs/img/modulo_solicitudes.png) | ![Evaluación](docs/img/modulo_evaluacion.png) |
+| ![Solicitudes](modulo_solicitudes.png) | ![Evaluación](modulo_evaluacion.png) |
 
 | Expediente e historial (Pila) | Búsqueda (Árbol) |
 |---|---|
-| ![Expediente](docs/img/modulo_expediente.png) | ![Búsqueda](docs/img/modulo_busqueda.png) |
+| ![Expediente](modulo_expediente.png) | ![Búsqueda](modulo_busqueda.png) |
 
 **Versión con temas** (`MOSTRAR_TEMAS = true`):
 
 | Menú principal | Expediente (cima de la pila) | Datos de los árboles |
 |---|---|---|
-| ![Menú con temas](docs/img/con_temas_menu_principal.png) | ![Expediente con temas](docs/img/con_temas_expediente.png) | ![Árboles](docs/img/con_temas_arboles.png) |
+| ![Menú con temas](con_temas_menu_principal.png) | ![Expediente con temas](con_temas_expediente.png) | ![Árboles](con_temas_arboles.png) |
 
 ---
 
 ## Estructura del repositorio
 
 ```
-├── EstudioJuridicoMM/      Proyecto de Apache NetBeans (código fuente en src/)
-├── docs/
-│   ├── Avance_Proyecto_Final_Estudio_Juridico_MM.docx   Informe (capítulos 1 a 3, formato APA)
-│   └── img/                Diagrama de clases y capturas
+├── EstudioJuridicoMM/                              Proyecto de Apache NetBeans (código fuente en src/)
+├── Avance_Proyecto_Final_Estudio_Juridico_MM.docx  Informe (capítulos 1 a 3, formato APA)
+├── diagrama_clases_parteA.png / parteB.png         Diagrama de clases
+├── modulo_*.png, con_temas_*.png, limpio_*.png     Capturas del aplicativo
 ├── .gitignore
 └── README.md
 ```
