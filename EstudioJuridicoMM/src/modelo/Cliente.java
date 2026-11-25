@@ -1,5 +1,6 @@
 package modelo;
 
+import estructuras.ListaEnlazada;
 import java.io.Serializable;
 
 /**
@@ -8,36 +9,37 @@ import java.io.Serializable;
  */
 public class Cliente implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private String id;          // DNI o RUC
     private String nombre;
     private String contacto;
     private boolean esContraparte;
-    private int cantidadExpedientes;
+    private ListaEnlazada<Expediente> expedientes;   // expedientes donde participa
 
     public Cliente(String id, String nombre, String contacto, boolean esContraparte) {
         this.id = id;
         this.nombre = nombre;
         this.contacto = contacto;
         this.esContraparte = esContraparte;
-        this.cantidadExpedientes = 0;
+        this.expedientes = new ListaEnlazada<>();
     }
 
-    /** Suma un expediente al contador del cliente. */
-    public void agregarExpediente() {
-        cantidadExpedientes++;
+    /** Agrega el expediente a la lista enlazada del cliente (al final). */
+    public void agregarExpediente(Expediente expediente) {
+        expedientes.agregarFinal(expediente);
     }
 
     public String getId() { return id; }
     public String getNombre() { return nombre; }
     public String getContacto() { return contacto; }
     public boolean isEsContraparte() { return esContraparte; }
-    public int getCantidadExpedientes() { return cantidadExpedientes; }
+    public int getCantidadExpedientes() { return expedientes.cantidadElementos(); }
+    public ListaEnlazada<Expediente> getExpedientes() { return expedientes; }
 
     @Override
     public String toString() {
         return String.format("%-12s %-35s %-11s %d exp.", id, SolicitudConsulta.recortar(nombre, 35),
-                esContraparte ? "CONTRAPARTE" : "CLIENTE", cantidadExpedientes);
+                esContraparte ? "CONTRAPARTE" : "CLIENTE", getCantidadExpedientes());
     }
 }
