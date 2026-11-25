@@ -34,18 +34,20 @@ public class PanelSolicitudesController {
                     + Tema.t("2. Ver cola de solicitudes pendientes\n", "2. Ver solicitudes pendientes (orden de llegada)\n")
                     + "3. Atender siguiente solicitud (llenar ficha)\n"
                     + "4. Ver siguiente sin retirar\n"
-                    + "5. Volver al menú principal";
+                    + Tema.t("5. Buscar solicitud por código (tabla hash)\n", "5. Buscar solicitud por código\n")
+                    + "6. Volver al menú principal";
             opcion = Dialogos.leerOpcion(menu, TITULO);
             switch (opcion) {
                 case 1: registrar(); break;
                 case 2: listar(); break;
                 case 3: atenderSiguiente(); break;
                 case 4: verSiguiente(); break;
-                case 5:
-                case -1: opcion = 5; break;
+                case 5: buscarPorCodigo(); break;
+                case 6:
+                case -1: opcion = 6; break;
                 default: Dialogos.error("Opción no válida.");
             }
-        } while (opcion != 5);
+        } while (opcion != 6);
     }
 
     /** RF-01 */
@@ -115,6 +117,21 @@ public class PanelSolicitudesController {
         evaluador.recibirFicha(ficha);
         Dialogos.info("Solicitud " + atendida.getCodigo() + " atendida y enviada a Evaluación.\n"
                 + Tema.t("Pendientes en cola: ", "Solicitudes pendientes: ") + gestor.cantidadPendientes(), TITULO);
+    }
+
+    /** RF-18: búsqueda directa en la tabla hash (pendientes, en evaluación o finalizadas). */
+    private void buscarPorCodigo() {
+        String codigo = Dialogos.leerTexto("Código de la solicitud (ej. SOL-0010):", TITULO, true, "SOL-");
+        if (codigo == null) return;
+        SolicitudConsulta s = gestor.buscarSolicitud(codigo);
+        if (s == null) {
+            Dialogos.aviso("No existe la solicitud " + codigo.trim().toUpperCase() + ".");
+            return;
+        }
+        String extra = Tema.t("\n\nBúsqueda en la tabla hash: " + gestor.getIndicePorCodigo().cantidadElementos()
+                + " solicitudes indexadas, capacidad " + gestor.getIndicePorCodigo().getCapacidad()
+                + ", cubetas con colisión: " + gestor.getIndicePorCodigo().cubetasConColision(), "");
+        Dialogos.info("SOLICITUD ENCONTRADA\n\n" + s.detalle() + extra, TITULO);
     }
 
     /** RF-04 */

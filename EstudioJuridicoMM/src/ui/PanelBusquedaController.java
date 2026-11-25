@@ -1,6 +1,8 @@
 package ui;
 
 import estructuras.Cola;
+import estructuras.ListaEnlazada;
+import servicio.CriteriosOrden;
 import estructuras.Nodo;
 import modelo.Cliente;
 import modelo.Expediente;
@@ -31,20 +33,22 @@ public class PanelBusquedaController {
                     + "2. Buscar expedientes por cliente (DNI/RUC)\n"
                     + Tema.t("3. Listar todos los expedientes ordenados (inorden)\n", "3. Listar todos los expedientes (ordenados por código)\n")
                     + Tema.t("4. Listar clientes y contrapartes (inorden)\n", "4. Listar clientes y contrapartes\n")
-                    + Tema.t("5. Información de los árboles\n", "5. Resumen de registros\n")
-                    + "6. Volver al menú principal";
+                    + Tema.t("5. Listar expedientes ordenados por criterio (merge sort)\n", "5. Listar expedientes ordenados por criterio\n")
+                    + Tema.t("6. Información de los árboles\n", "6. Resumen de registros\n")
+                    + "7. Volver al menú principal";
             opcion = Dialogos.leerOpcion(menu, TITULO);
             switch (opcion) {
                 case 1: buscarPorCodigo(); break;
                 case 2: buscarPorCliente(); break;
                 case 3: listarOrdenados(); break;
                 case 4: listarClientes(); break;
-                case 5: infoArboles(); break;
-                case 6:
-                case -1: opcion = 6; break;
+                case 5: listarPorCriterio(); break;
+                case 6: infoArboles(); break;
+                case 7:
+                case -1: opcion = 7; break;
                 default: Dialogos.error("Opción no válida.");
             }
-        } while (opcion != 6);
+        } while (opcion != 7);
     }
 
     /** RF-14 */
@@ -74,7 +78,7 @@ public class PanelBusquedaController {
             Dialogos.aviso("No existe un cliente o contraparte con identificador " + id + ".");
             return;
         }
-        Cola<Expediente> resultado = gestor.buscarPorCliente(id);
+        ListaEnlazada<Expediente> resultado = gestor.buscarPorCliente(id);
         StringBuilder sb = new StringBuilder();
         sb.append(c.isEsContraparte() ? "CONTRAPARTE: " : "CLIENTE: ").append(c.getNombre())
           .append(" (").append(c.getId()).append(")\nContacto: ").append(c.getContacto()).append("\n\n");
@@ -82,7 +86,7 @@ public class PanelBusquedaController {
         if (resultado.estaVacia()) {
             sb.append("Sin expedientes.\n");
         }
-        Nodo<Expediente> aux = resultado.getFrente();
+        Nodo<Expediente> aux = resultado.getInicio();
         while (aux != null) {
             sb.append(aux.getDato()).append("\n");
             aux = aux.getSiguiente();
@@ -92,7 +96,7 @@ public class PanelBusquedaController {
 
         if (resultado.cantidadElementos() > 0 && Dialogos.confirmar("¿Abrir alguno de estos expedientes?", TITULO)) {
             String[] codigos = new String[resultado.cantidadElementos()];
-            aux = resultado.getFrente();
+            aux = resultado.getInicio();
             int i = 0;
             while (aux != null) {
                 codigos[i++] = aux.getDato().getCodigo();
@@ -103,6 +107,34 @@ public class PanelBusquedaController {
                 new PanelExpedienteController(sistema).abrir(gestor.buscarPorCodigo(elegido.toString()));
             }
         }
+    }
+
+    /** RF-19: lista ordenada con merge sort según el criterio elegido. */
+    private void listarPorCriterio() {
+        Object elegido = Dialogos.elegir("Ordenar los expedientes por:", TITULO, CriteriosOrden.NOMBRES);
+        if (elegido == null) return;
+        int indice = 0;
+        while (!CriteriosOrden.NOMBRES[indice].equals(elegido)) indice++;
+        ListaEnlazada<Expediente> lista = gestor.listarOrdenadosPor(CriteriosOrden.porIndice(indice));
+        StringBuilder sb = new StringBuilder(Tema.t("Ordenamiento por mezcla (merge sort) sobre lista enlazada\n", "")
+                + "Criterio: " + elegido + "\n\n");
+        sb.append(String.format("%-14s %-28s %-11s %-10s  %-11s %s%n", "Código", "Cliente", "Especialid.", "Apertura", "Últ. mov.", "Estado"));
+        sb.append(Dialogos.linea());
+        Nodo<Expediente> aux = lista.getInicio();
+        while (aux != null) {
+            Expediente e = aux.getDato();
+            String ult = e.obtenerUltimoMovimiento() == null ? "-" : modelo.Fechas.texto(e.obtenerUltimoMovimiento().getFecha());
+            sb.append(String.format("%-14s %-28s %-11s %s  %-11s %s%n", e.getCodigo(),
+                    recortar(e.getCliente().getNombre(), 28), e.getEspecialidad(),
+                    modelo.Fechas.texto(e.getFechaApertura()), ult, e.getEstado()));
+            aux = aux.getSiguiente();
+        }
+        sb.append(Dialogos.linea()).append("Total: ").append(lista.cantidadElementos());
+        Dialogos.mostrarTexto("Expedientes ordenados", sb.toString());
+    }
+
+    private static String recortar(String s, int max) {
+        return s.length() <= max ? s : s.substring(0, max - 3) + "...";
     }
 
     /** RF-16 */
