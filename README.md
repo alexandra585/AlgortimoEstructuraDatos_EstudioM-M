@@ -277,7 +277,8 @@ Profesor: Henry Hermes Alcantara Valderrama
 
 Integrantes:
 
+- Alexandra del Carmen Magallanes Saldaña (coordinadora y desarrolladora principal)
 - Celso Eduardo Machuca García
 - Carlo Cesar Montañez Millones
-- Alexandra del Carmen Magallanes Saldaña
+- Fabrizio Ángel Puente Rodriguez
 - Jhonfranklin Diaz Diaz
