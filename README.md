@@ -2,13 +2,16 @@
 
 Aplicativo de escritorio en **Java** que automatiza la recepción de consultas, la evaluación y apertura de casos y el historial de los expedientes de un estudio jurídico. Lo desarrollamos como **Proyecto Final del curso Algoritmos y Estructura de Datos** (Universidad Tecnológica del Perú, 2026).
 
-El proyecto aplica tres estructuras de datos **implementadas por el equipo, sin usar las colecciones de `java.util`**:
+El proyecto aplica estructuras de datos y algoritmos **implementados por el equipo, sin usar las colecciones de `java.util`**:
 
 | Estructura | Problema del estudio que resuelve | Dónde está |
 |---|---|---|
 | **Cola (FIFO)** | Atender las solicitudes de los clientes en estricto orden de llegada | `estructuras/Cola.java` |
 | **Pila (LIFO)** | Ver al instante el último movimiento de un expediente y anular un registro erróneo sin perderlo | `estructuras/Pila.java` |
 | **Árbol binario de búsqueda** | Encontrar expedientes por código y clientes por DNI/RUC, y detectar conflictos de interés | `estructuras/ArbolBinarioBusqueda.java` |
+| **Lista enlazada** | Guardar los expedientes de cada cliente; cubetas de la tabla hash | `estructuras/ListaEnlazada.java` |
+| **Tabla hash** | Encontrar cualquier solicitud por su código al instante | `estructuras/TablaHash.java` |
+| **Merge sort (recursivo)** | Listar expedientes por actividad reciente, fecha, cliente o especialidad | `estructuras/Ordenamiento.java` |
 
 ---
 
@@ -19,6 +22,7 @@ El proyecto aplica tres estructuras de datos **implementadas por el equipo, sin 
 - [Requisitos](#requisitos)
 - [Cómo ejecutarlo](#cómo-ejecutarlo)
 - [Uso del aplicativo](#uso-del-aplicativo)
+- [Pruebas](#pruebas)
 - [Arquitectura](#arquitectura)
 - [Capturas](#capturas)
 - [Estructura del repositorio](#estructura-del-repositorio)
@@ -57,10 +61,12 @@ Solicitud ──► COLA ──► Ficha de consulta ──► ¿Conflicto? (ÁR
 | 1 | Introducción a las estructuras de datos | Uso combinado de estructuras estáticas (arreglos) y dinámicas (nodos) |
 | 2–3 | Arreglos unidimensionales | Lista de especialidades, copia del historial a un arreglo para navegarlo por índice |
 | 6 | Tipo Abstracto de Datos (TAD) | Paquete `modelo`: `SolicitudConsulta`, `Cliente`, `Expediente`, `MovimientoLegal`, `PropuestaHonorarios`… |
-| 7–8 | Listas enlazadas y su recorrido | `Nodo<T>` con sus dos constructores; recorridos `while (aux != null)` para listar y buscar |
+| 7–8 | Listas enlazadas y su recorrido | `Nodo<T>` y `ListaEnlazada<T>`: expedientes de cada cliente y cubetas de la tabla hash |
 | 11 | Pilas | `Pila<T>` dinámica: `push`, `pop`, `peek`, `estaVacia`, `cantidadElementos`, `mostrarPila`, `limpiarPila` |
 | 12 | Colas | `Cola<T>` dinámica: `agregar`, `poll`, `peek`, `estaVacia`, `cantidadElementos`, `mostrarCola`, `limpiarCola` |
 | Árbol Binario | Árbol binario de búsqueda | `ArbolBinarioBusqueda<K,V>`: `agregar`, `buscar`, `eliminar` (con `encontrarMinimo`), `mostrarElementos` (recorrido en orden) |
+| Tablas hash | Función hash y encadenamiento | `TablaHash<K,V>` con rehash: búsqueda de solicitudes por código |
+| Búsqueda, ordenamiento y recursividad | Merge sort, búsqueda secuencial, en árbol y en tabla hash | `Ordenamiento.mergeSort()` recursivo; métodos recursivos del árbol |
 | Todas | Entorno visual con `JOptionPane` | Toda la interfaz se maneja con cuadros de diálogo |
 
 Los métodos de la Pila, la Cola y el Árbol usan **los mismos nombres y la misma lógica que el material del curso**. Las diferencias son:
@@ -79,6 +85,9 @@ Los métodos de la Pila, la Cola y el Árbol usan **los mismos nombres y la mism
 | `GestorExpedientes` | `ArbolBinarioBusqueda<String, Cliente>` | Clientes y contrapartes por DNI/RUC, detección de conflictos |
 | `Expediente` | `Pila<MovimientoLegal>` (2) | Movimientos vigentes (cima = último) y movimientos anulados |
 | `Expediente.registrarMovimiento` | Pila auxiliar | Ubica un movimiento con fecha atrasada en su lugar cronológico |
+| `Cliente` | `ListaEnlazada<Expediente>` | Expedientes en los que participa cada cliente o contraparte |
+| `GestorSolicitudes` | `TablaHash<String, SolicitudConsulta>` | Índice de todas las solicitudes por código |
+| `GestorExpedientes.listarOrdenadosPor` | `Ordenamiento.mergeSort` + `CriteriosOrden` | Listados ordenados por criterio |
 
 ---
 
@@ -140,10 +149,10 @@ Al salir, todo se guarda en `datos_estudio_mm.dat`. Para volver a los datos de p
 
 | Módulo | Qué hace | Requerimientos |
 |---|---|---|
-| 1. Solicitudes de consulta | Registrar solicitudes, ver la cola, atender la siguiente y llenar la ficha | RF-01 a RF-05 |
+| 1. Solicitudes de consulta | Registrar solicitudes, ver la cola, atender la siguiente, llenar la ficha y buscar una solicitud por código | RF-01 a RF-05, RF-18 |
 | 2. Evaluación y apertura | Verificar conflicto de interés, propuesta de honorarios (plazo de 5 días), decisión del cliente, abrir expediente | RF-06 a RF-08 |
 | 3. Expediente e historial | Ver el último movimiento, registrar, modificar, anular, ver el historial completo y navegarlo | RF-09 a RF-13 |
-| 4. Búsqueda de expedientes | Buscar por código o por DNI/RUC, listar ordenado, ver datos de los árboles | RF-14 a RF-16 |
+| 4. Búsqueda de expedientes | Buscar por código o por DNI/RUC, listar ordenado, listar por criterio (merge sort), ver datos de los árboles | RF-14 a RF-16, RF-19 |
 | Guardar / salir | Persistencia en archivo local | RF-17 |
 
 ### Casos para probar
@@ -156,20 +165,41 @@ Al salir, todo se guarda en `datos_estudio_mm.dat`. Para volver a los datos de p
 
 ---
 
+## Pruebas
+
+La clase `pruebas/PruebasSistema.java` (ejecutar con **Shift + F6**) verifica 29 condiciones en 8 casos y muestra `[PASO]` o `[FALLO]` por cada una:
+
+| Caso | Qué verifica |
+|---|---|
+| P1 | Orden de atención: la cola atiende en el mismo orden de registro (FIFO) |
+| P2 | Historial: la cima es siempre el último movimiento; anular no borra datos |
+| P3 | Integridad al guardar y cargar el archivo (cola, historiales, árboles) |
+| P4 | Restaurar datos iniciales y recargar el archivo |
+| P5 | Árbol binario: agregar, buscar, recorrido en orden y eliminar con dos hijos |
+| P6 | Tabla hash: búsqueda por código y 500 claves con rehash |
+| P7 | Lista enlazada y merge sort |
+| P8 | Detección de conflicto de interés |
+
+Usa archivos temporales, así que no modifica los datos guardados del usuario.
+
+---
+
 ## Arquitectura
 
 Arquitectura por capas, organizada en paquetes:
 
 ```
 EstudioJuridicoMM/src
-├── estructuras/    Cola, Pila, Nodo, ArbolBinarioBusqueda, NodoArbol (implementación propia)
+├── estructuras/    Cola, Pila, Nodo, ListaEnlazada, TablaHash, EntradaHash,
+│                   ArbolBinarioBusqueda, NodoArbol, Criterio, Ordenamiento (implementación propia)
 ├── modelo/         SolicitudConsulta, FichaConsulta, PropuestaHonorarios, Cliente,
 │                   Expediente, MovimientoLegal, Fechas y enums de estados y tipos
 ├── servicio/       GestorSolicitudes, EvaluadorCasos, GestorExpedientes,
-│                   GestorHistorial, SistemaEstudio (reglas del negocio / BPMN)
+│                   GestorHistorial, SistemaEstudio, CriteriosOrden (reglas del negocio / BPMN)
 ├── persistencia/   ServicioPersistencia (guardar y cargar), DatosIniciales (datos de prueba)
-└── ui/             MainApp, VentanaPrincipalController, Panel*Controller,
-                    Dialogos (JOptionPane) y Tema (versión con temas o limpia)
+├── ui/             MainApp, VentanaPrincipalController, Panel*Controller,
+│                   Dialogos (JOptionPane) y Tema (versión con temas o limpia)
+└── pruebas/        PruebasSistema (pruebas P1 a P8)
 ```
 
 Cada capa usa solo a la de abajo: `ui` → `servicio` → `modelo` → `estructuras`. Así, cambiar una estructura (por ejemplo, el árbol) no afecta a la interfaz.
@@ -210,7 +240,7 @@ Las capturas de los módulos corresponden a la versión limpia (`MOSTRAR_TEMAS =
 
 ```
 ├── EstudioJuridicoMM/                              Proyecto de Apache NetBeans (código fuente en src/)
-├── Avance_Proyecto_Final_Estudio_Juridico_MM.docx  Informe (capítulos 1 a 3, formato APA)
+├── Informe_Final_Proyecto_Estudio_Juridico_MM.docx Informe final (capítulos 1 a 5 y anexos, formato APA)
 ├── diagrama_clases_parteA.png / parteB.png         Diagrama de clases
 ├── modulo_*.png, con_temas_*.png, limpio_*.png     Capturas del aplicativo
 ├── .gitignore
