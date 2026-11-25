@@ -2,6 +2,9 @@ package servicio;
 
 import estructuras.ArbolBinarioBusqueda;
 import estructuras.Cola;
+import estructuras.Criterio;
+import estructuras.ListaEnlazada;
+import estructuras.Ordenamiento;
 import estructuras.Nodo;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -58,9 +61,9 @@ public class GestorExpedientes implements Serializable {
         Expediente exp = new Expediente(codigo, cliente, contraparte, s.getEspecialidad(), s.getMotivo(), fechaApertura);
         exp.registrarMovimiento(fechaApertura, TipoMovimiento.OTRO,
                 "Apertura de expediente. Contrato de representación firmado", "CONTRATO-" + codigo);
-        cliente.agregarExpediente();
+        cliente.agregarExpediente(exp);
         if (contraparte != null) {
-            contraparte.agregarExpediente();
+            contraparte.agregarExpediente(exp);
         }
         arbolPorCodigo.agregar(codigo, exp);
         return exp;
@@ -77,25 +80,27 @@ public class GestorExpedientes implements Serializable {
     }
 
     /**
-     * RF-15: expedientes de un cliente. Primero se valida el cliente en el árbol
-     * de clientes y luego se recorre el árbol de expedientes en inorden.
+     * RF-15: expedientes de un cliente o contraparte. Se busca a la persona en el
+     * árbol de clientes y se devuelve su lista enlazada de expedientes.
      */
-    public Cola<Expediente> buscarPorCliente(String id) {
-        Cola<Expediente> resultado = new Cola<>();
-        if (buscarCliente(id) == null) {
-            return resultado;
-        }
+    public ListaEnlazada<Expediente> buscarPorCliente(String id) {
+        Cliente c = buscarCliente(id);
+        return c == null ? new ListaEnlazada<>() : c.getExpedientes();
+    }
+
+    /**
+     * RF-19: expedientes ordenados por un criterio. Se copian a una lista enlazada
+     * (recorrido en orden del árbol) y se ordenan con merge sort.
+     */
+    public ListaEnlazada<Expediente> listarOrdenadosPor(Criterio<Expediente> criterio) {
+        ListaEnlazada<Expediente> lista = new ListaEnlazada<>();
         Nodo<Expediente> aux = arbolPorCodigo.mostrarElementos().getFrente();
         while (aux != null) {
-            Expediente e = aux.getDato();
-            boolean esCliente = e.getCliente().getId().equals(id.trim());
-            boolean esContraparte = e.getContraparte() != null && e.getContraparte().getId().equals(id.trim());
-            if (esCliente || esContraparte) {
-                resultado.agregar(e);
-            }
+            lista.agregarFinal(aux.getDato());
             aux = aux.getSiguiente();
         }
-        return resultado;
+        Ordenamiento.mergeSort(lista, criterio);
+        return lista;
     }
 
     /** RF-16: expedientes ordenados por código (recorrido inorden). */

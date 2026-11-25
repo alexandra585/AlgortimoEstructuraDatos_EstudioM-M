@@ -1,6 +1,7 @@
 package servicio;
 
 import estructuras.Cola;
+import estructuras.TablaHash;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import modelo.EstadoSolicitud;
@@ -13,13 +14,15 @@ import modelo.SolicitudConsulta;
  */
 public class GestorSolicitudes implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private Cola<SolicitudConsulta> cola;
+    private TablaHash<String, SolicitudConsulta> indicePorCodigo;   // todas las solicitudes
     private int contador;
 
     public GestorSolicitudes() {
         cola = new Cola<>();
+        indicePorCodigo = new TablaHash<>();
         contador = 0;
     }
 
@@ -36,6 +39,7 @@ public class GestorSolicitudes implements Serializable {
         String codigo = String.format("SOL-%04d", contador);
         SolicitudConsulta s = new SolicitudConsulta(codigo, nombre, id, contacto, motivo, especialidad, fechaHora);
         cola.agregar(s);
+        indicePorCodigo.insertar(codigo, s);
         return s;
     }
 
@@ -56,6 +60,18 @@ public class GestorSolicitudes implements Serializable {
     /** RF-02: listado de pendientes en orden de llegada. */
     public Cola<SolicitudConsulta> listarPendientes() {
         return cola;
+    }
+
+    /**
+     * RF-18: busca cualquier solicitud (pendiente, en evaluación o finalizada)
+     * por su código en la tabla hash. O(1) en promedio.
+     */
+    public SolicitudConsulta buscarSolicitud(String codigo) {
+        return indicePorCodigo.buscar(codigo.trim().toUpperCase());
+    }
+
+    public TablaHash<String, SolicitudConsulta> getIndicePorCodigo() {
+        return indicePorCodigo;
     }
 
     public int cantidadPendientes() {
